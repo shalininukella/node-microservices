@@ -1,0 +1,37 @@
+services:
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  auth:
+    build: ./auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/authdb
+      - PORT=5001
+      - JWT_SECRET=supersecret
+    depends_on:
+      - mongo
+
+  product:
+    build: ./product-service
+    ports:
+      - "5002:5002"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/productdb
+      - PORT=5002
+    depends_on:
+      - mongo
+
+  gateway:
+    build: ./api-gateway
+    ports:
+      - "8000:5000"
+    environment:
+      - JWT_SECRET=supersecret
+    depends_on:
+      - auth
+      - product
